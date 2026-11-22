@@ -6,14 +6,14 @@ input{width:100%;background:#0b0b14;border:1px solid var(--line);border-radius:1
 .row{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-top:1px solid var(--line)}.ok{color:#6dff9c}.wt{color:#ffd166}.lnk{word-break:break-all;background:#0b0b14;padding:9px;border-radius:8px;font-size:13px}</style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script></head><body><div class="w" id="app"></div><script>
 const SB=supabase.createClient('https://gjkpcybaezrqapjyhacs.supabase.co','sb_publishable_kU32UCX6xzHug58YO2wmTg_nKyTKu_r'),$=s=>document.querySelector(s),esc=t=>String(t??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const q=new URLSearchParams(location.search);let c=q.get('c')||'',k=q.get('k')||'',D=null,evs={},logo='',msg='';
+const q=new URLSearchParams(location.search);const hs={};let c=q.get('c')||'',k=q.get('k')||'',D=null,evs={},logo='',msg='';
 try{if(!c)c=localStorage.getItem('pc')||'';if(!k)k=localStorage.getItem('pk')||''}catch(e){}
 async function load(){if(!c||!k){render();return}
  const r=await SB.rpc('promo_stats',{pcode:c.trim(),ptoken:k.trim()});D=r.data;msg=D?'':'Invalid code or key.';
  if(D){try{localStorage.setItem('pc',c);localStorage.setItem('pk',k)}catch(e){}
-  const e=await SB.from('cfg').select('id,data');(e.data||[]).forEach(x=>{evs[x.id]=x.data.day?new Date(x.data.day+'T12:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}):(x.data.title||'')});
+  const e=await SB.from('cfg').select('id,data');(e.data||[]).forEach(x=>{if(x.data.type==='house')hs[x.id]=1;evs[x.id]=x.data.day?new Date(x.data.day+'T12:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}):(x.data.title||'')});
   const l=await SB.from('photos').select('data').eq('id','logo').maybeSingle();logo=(l.data&&l.data.data&&l.data.data.src)||''}
- render()}
+ if(D)D.sales=(D.sales||[]).filter(s=>hs[s.ev]);render()}
 function render(){const A=$('#app'),head=logo?`<img class="brand" src="${logo}" alt="">`:'<div class="logo">LORZY EVENTS</div>';
  if(!D){A.innerHTML=`${head}<h1>Promoter dashboard</h1><div class="card"><p class="mu">Enter your code and key (they are in the link you were given).</p><input id="c" placeholder="Code" value="${esc(c)}"><input id="k" placeholder="Key" value="${esc(k)}"><button onclick="c=$('#c').value;k=$('#k').value;load()">Open</button><p class="wt">${esc(msg)}</p></div>`;return}
  const pd=D.sales.filter(s=>s.paid),f=pd.filter(s=>s.sex==='F').length,g=pd.length-f,earn=f*D.rateF+g*D.rateG,link=location.origin+location.pathname.replace(/[^/]*$/,'')+'?ref='+encodeURIComponent(c.toLowerCase());
