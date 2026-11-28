@@ -85,7 +85,7 @@ const DEF={title:'Boat Party Miami',date:'',desc:'Book your spot on the boat par
 let cfg={...DEF},evs=[],allB=[],curEv='main',picked=false,bookings=[],waitl=[],photos=[],tab='stats',authed=false,friends=[{first:'',last:''}],sex='',done=false;
 const busy=()=>{const a=document.activeElement;return a&&/INPUT|TEXTAREA/.test(a.tagName)&&a.type!=='file'};const MAXB=8,CAP=12;
 const saveCfg=()=>store.set('cfg',curEv,cfg);
-const today=()=>new Date().toISOString().slice(0,10),byDay=(a,b)=>(a.day||'').localeCompare(b.day||'');
+const today=()=>{const d=new Date(Date.now()-6*36e5),p=n=>String(n).padStart(2,'0');return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())},byDay=(a,b)=>(a.day||'').localeCompare(b.day||'');
 const evLabel=e=>e.day?new Date(e.day+'T12:00').toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})+(e.time?' · '+e.time:''):(e.date||'');
 const visEvs=()=>evs.filter(e=>!e.hidden&&(!e.day||e.day>=today())).sort(byDay);
 const pickEv=()=>((visEvs()[0]||evs[0]||{}).id)||'main';
